@@ -131,8 +131,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-current_dir = os.path.dirname(__file__)
-logo_path = os.path.join(current_dir, "Logo.png")
+
 
 selected2 = streamlit_option_menu.option_menu(None, ["Home", "Projects", 'Settings'], 
     icons=['house', "list-task", 'gear'], 
@@ -142,7 +141,7 @@ selected2 = streamlit_option_menu.option_menu(None, ["Home", "Projects", 'Settin
 if selected2 == "Home":
     # Display a short introduction text
     st.write("This is an introduction to the amazing Amon Ai project. This introduction could be as long as you want, and could includde pictures, but that's your job to write it not mine.")
-    st.image(logo_path, caption="Logo")
+    st.image("Logo.png", caption="Logo")
 
 elif selected2 == "Projects":
     manage_projects()
