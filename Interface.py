@@ -2,7 +2,7 @@ import streamlit as st
 import random
 import time
 import os
-from streamlit_option_menu import option_menu
+import streamlit_option_menu
 
 def manage_projects():
     st.subheader("Manage Projects")
@@ -134,7 +134,7 @@ st.sidebar.markdown(
 current_dir = os.path.dirname(__file__)
 logo_path = os.path.join(current_dir, "Logo.png")
 
-selected2 = option_menu(None, ["Home", "Projects", 'Settings'], 
+selected2 = streamlit_option_menu.option_menu(None, ["Home", "Projects", 'Settings'], 
     icons=['house', "list-task", 'gear'], 
     menu_icon="cast", default_index=0, orientation="horizontal")
 
