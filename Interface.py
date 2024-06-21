@@ -111,6 +111,20 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] .center-text {
+            text-align: center;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+    """, 
+    unsafe_allow_html=True
+)
+
 st.sidebar.image("Logo.png", width=100)
 # Sidebar for model selection
 st.sidebar.title('👷💬 Assistant AmonAI')
@@ -118,8 +132,6 @@ project = st.sidebar.selectbox(
     "Sélectionnez un projet:",
     ("Projet A57 NGE", "Projet A57 NGE - Use Case")
 )
-
-st.sidebar.markdown(f"**Projet Actuel:** {project}")
 
 
 if 'profile_visible' not in st.session_state:
@@ -131,36 +143,54 @@ def disconnect():
 if st.session_state['profile_visible']:
 # Add profile picture, name, and function
     st.sidebar.markdown("---")
-    st.sidebar.image("pp.png", output_format="auto", width=170)
+    
+    st.sidebar.markdown(f'<div style="margin-bottom: 15px;text-align: center;"><strong>Projet Actuel:</strong> {project}</div>', unsafe_allow_html=True)
+
+    st.sidebar.image("pp.png", output_format="auto", width=100)
     # Centered name and function
     st.sidebar.markdown('<div class="center-text"><h3>Alexandre Hoang</h3></div>', unsafe_allow_html=True)
-    st.sidebar.markdown('<div class="center-text"><h4>Directeur des Travaux</h4></div>', unsafe_allow_html=True)
+    #st.sidebar.markdown('<div class="center-text"><h5>Directeur des Travaux</h5></div>', unsafe_allow_html=True)
+    st.sidebar.markdown('<div style="font-size: 14px; font-weight: normal; margin-bottom: 15px; text-align: center;">Directeur des Travaux</div>', unsafe_allow_html=True)
 
-st.sidebar.markdown(
-    """
-    <style>
-        .sidebar-buttons {
-            display: flex;
-            justify-content: space-between;
-        }
-        .sidebar-buttons button {
-            width: 48%;
-            border: none;
-            padding: 4px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        .sidebar-buttons button:hover {
-            background-color: #e0e0e0;
-        }
-    </style>
-    <div class="sidebar-buttons">
-        <button onclick="document.querySelector('[aria-label=Settings]').click()">Settings</button>
-        <button onclick="document.querySelector('[aria-label=Disconnect]').click()">Disconnect</button>
-    </div>
-    """, 
-    unsafe_allow_html=True
-)
+
+    button_container = st.sidebar.empty()
+    with button_container:
+        col1, col2 = st.columns(2)
+        col1.button('Paramètres')
+
+        col2.button('Se Déconnecter')
+
+    # Adding buttons for settings and disconnect
+#     if st.sidebar.button('Settings'):
+#         st.sidebar.write("Settings button clicked")
+
+#     if st.sidebar.button('Disconnect'):
+#         st.sidebar.write("Disconnect button clicked")
+# # st.sidebar.markdown(
+#     """
+#     <style>
+#         .sidebar-buttons {
+#             display: flex;
+#             justify-content: space-between;
+#         }
+#         .sidebar-buttons button {
+#             width: 48%;
+#             border: none;
+#             padding: 4px;
+#             font-size: 12px;
+#             cursor: pointer;
+#         }
+#         .sidebar-buttons button:hover {
+#             background-color: #e0e0e0;
+#         }
+#     </style>
+#     <div class="sidebar-buttons">
+#         <button onclick="document.querySelector('[aria-label=Settings]').click()">Settings</button>
+#         <button onclick="document.querySelector('[aria-label=Disconnect]').click()">Disconnect</button>
+#     </div>
+#     """, 
+#     unsafe_allow_html=True
+# )
 st.sidebar.markdown("---")
 st.sidebar.markdown('<div class="center-text"><h4>Des questions? Nous contacter :</h4></div>', unsafe_allow_html=True)
 st.sidebar.markdown(
@@ -180,51 +210,132 @@ st.sidebar.markdown(
 # current_dir = os.path.dirname(__file__)
 # logo_path = os.path.join(current_dir, "Logo.png")
 
-col1, col2, col3 = st.columns(3)
-with col2: 
-    st.image("Logo.png")
+st.markdown(
+    """
+    <style>
+         [data-testid="stImage"] {
+            text-align: center;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+        
+    </style>
+    """, 
+    unsafe_allow_html=True
+)
+st.image("Logo.png", width = 170)
+# st.header("AmonAI")
+# with col2: 
+#     st.image(logo_path, width = 170)
+# st.subheader(project)
 
 
+def find_conversation(name):
+    for conv in st.session_state.conversations:
+        if conv["name"] == name:
+            return conv
+    return None
+def start_new_conversation():
+    # Clear the message history for a new conversation
+    st.session_state.messages = []
+    st.session_state.current_conversation = None
+
+def on_option_change(key):
+    for conversation in st.session_state.conversations:
+        if conversation['name'] == st.session_state["choice"]:
+            st.session_state.current_conversation = conversation['name']
+            st.session_state.messages = conversation['history']
+            break
+    st.session_state['menu_option'][1] = 1
+    st.rerun()
 
 
+if 'menu_option' not in st.session_state:
+       st.session_state['menu_option'] =[0,1]
+if "selected2" not in st.session_state:
+    st.session_state['selected2'] = "Chat"
 
-
-
-
-selected2 = streamlit_option_menu.option_menu(None, ["Conversations", "Chat"], 
+st.session_state['selected2'] = streamlit_option_menu.option_menu(None, ["Conversations", "Chat"], 
     icons=["list-task", "chat"], 
-    menu_icon="cast", default_index=1, orientation="horizontal")
+    menu_icon="cast", default_index=st.session_state['menu_option'][1], orientation="horizontal")
 
+if "current_conversation" not in st.session_state:
+    st.session_state.current_conversation = None
 if "conversations" not in st.session_state:
     st.session_state.conversations = []
-
 # Handle different menu selections
-if selected2 == "Conversations":
+if st.session_state['selected2'] == "Conversations":
+    
+    st.session_state['menu_option'][1]=0
     if not st.session_state.conversations:
-        st.warning("No conversations available. Start a new one in the Chat mode.")
+        st.warning("Aucune conversation n'a encore été démarrée.")
     else:
-        st.write("Select one of the conversations previously done with the chatbot:")
-        # Display list of conversations
+        st.write("Sélectionnez une conversation")
+        # for conversation in st.session_state.conversations:
+        #     if st.button(conversation['name']):
+        #         st.session_state.current_conversation = conversation['name']
+        #         st.session_state.messages = conversation['history']
+        conversation_names = [conv['name'] for conv in st.session_state.conversations]
+        if st.session_state.current_conversation:
+            default_index = conversation_names.index(st.session_state.current_conversation)
+        else:
+            default_index = 0
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            convo = streamlit_option_menu.option_menu(None, conversation_names, default_index=default_index, key = "choice", on_change=on_option_change)
+        for conversation in st.session_state.conversations:
+            if conversation['name'] == convo:
+                st.session_state.current_conversation = conversation['name']
+                st.session_state.messages = conversation['history']
+                break
+    if st.button("Nouvelle Conversation"):    
+        start_new_conversation()
+        st.session_state['menu_option'][1] = 1
+        st.rerun()
 
 
 
-elif selected2 == "Chat":
+elif st.session_state['selected2'] == "Chat":
+    st.session_state['menu_option'][1]=1
     if "messages" not in st.session_state:
         st.session_state.messages = []
     # Display chat messages from history on app rerun
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-
     # Accept user input
-    if prompt := st.chat_input("posez votre question"):
+    if prompt := st.chat_input("Posez votre question"):
+
         # Display user message in chat message container
         with st.chat_message("user"):
             st.markdown(prompt)
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("assistant"):
+            with st.spinner('Veuillez patienter quelques secondes, une réponse arrive !'):
+                time.sleep(5)
             response = st.write_stream(response_generator())
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
-    #st.session_state.conversations.append({"name": st.session_state.messages['content'], "history" : st.session_state.messages})
+        if st.session_state.current_conversation:
+            conversation = find_conversation(st.session_state.current_conversation)
+            if conversation:
+                conversation['history'] = st.session_state.messages
+            else:
+                st.session_state.conversations.append({
+                    "name": st.session_state.current_conversation,
+                    "history": st.session_state.messages
+                })
+        else:
+            # This is a new conversation without a specific name yet
+            st.session_state.current_conversation = st.session_state.messages[0]['content']
+            st.session_state.conversations.append({
+                "name": st.session_state.current_conversation,
+                "history": st.session_state.messages
+            })
+
+if st.session_state['menu_option'][0] !=st.session_state['menu_option'][1]:
+       st.session_state['menu_option'][0] =st.session_state['menu_option'][1]
+       st.rerun()
