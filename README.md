@@ -1,2 +1,2 @@
 # Streamlit-ConstruAI
- Test Interface
+Interace Streamlit pour un Chatbot
