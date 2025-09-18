@@ -40,7 +40,7 @@ pip install -r requirements.txt
 3. Run the Streamlit app:
 
 ```bash
-streamlit run app.py
+streamlit run interface.py
 ```
 
 Open your browser at `http://localhost:8501` to interact with the interface.
